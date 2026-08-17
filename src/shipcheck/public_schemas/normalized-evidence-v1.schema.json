@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vigilanty0x.github.io/shipcheck-release-gate/schemas/normalized-evidence-v1.schema.json",
+  "title": "Shipcheck supplied normalized evidence v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "adapter", "source_kind", "trust_level", "source_digest", "records"],
+  "properties": {
+    "schema_version": {"const": "shipcheck/normalized-evidence-v1"},
+    "adapter": {"enum": ["junit-xml", "sarif-json", "cyclonedx-json"]},
+    "source_kind": {"const": "supplied"}, "trust_level": {"const": "self_declared"},
+    "source_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "records": {"type": "array", "minItems": 1, "maxItems": 10000, "items": {"type": "object", "additionalProperties": false, "required": ["kind", "payload"], "properties": {"kind": {"type": "string", "minLength": 1, "maxLength": 32}, "payload": {"type": "object", "maxProperties": 1000}}}},
+    "summary": {"type": "object", "maxProperties": 1000}
+  }
+}

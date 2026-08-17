@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vigilanty0x.github.io/shipcheck-release-gate/schemas/decision-v1.schema.json",
+  "title": "Shipcheck decision v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "decision_id", "release_id", "outcome", "evaluated_at", "candidate_digest", "evidence_digest", "policy_id", "policy_digest", "assurance_profile", "production_ready", "gates", "applied_waivers"],
+  "properties": {
+    "schema_version": {"const": "shipcheck/v1"},
+    "decision_id": {"type": "string", "minLength": 1, "maxLength": 64}, "release_id": {"$ref": "#/$defs/id"},
+    "outcome": {"enum": ["READY", "BLOCKED", "UNKNOWN"]}, "evaluated_at": {"type": "string", "format": "date-time"},
+    "candidate_digest": {"$ref": "#/$defs/sha256"}, "evidence_digest": {"$ref": "#/$defs/sha256"},
+    "policy_id": {"$ref": "#/$defs/id"}, "policy_digest": {"$ref": "#/$defs/sha256"},
+    "assurance_profile": {"enum": ["LAB", "PRODUCTION"]}, "production_ready": {"type": "boolean"},
+    "gates": {"type": "array", "minItems": 15, "maxItems": 16, "items": {"$ref": "#/$defs/gate"}},
+    "applied_waivers": {"type": "array", "maxItems": 100, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 128}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "gate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gate", "status", "reason_code", "message", "evidence_ids", "details"],
+      "properties": {
+        "gate": {"$ref": "#/$defs/id"}, "status": {"enum": ["pass", "fail", "unknown", "pending", "cancelled", "skipped", "warn"]},
+        "reason_code": {"$ref": "#/$defs/id"}, "message": {"type": "string", "minLength": 1, "maxLength": 2000},
+        "evidence_ids": {"type": "array", "maxItems": 500, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+        "details": {"type": "object", "maxProperties": 1000}, "waived_by": {"$ref": "#/$defs/id"},
+        "original_status": {"enum": ["fail", "unknown"]}
+      }
+    }
+  }
+}

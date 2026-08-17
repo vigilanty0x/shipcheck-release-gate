@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vigilanty0x.github.io/shipcheck-release-gate/schemas/demo-manifest-v1.schema.json",
+  "title": "Shipcheck synthetic demo manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "evidence",
+    "policy",
+    "trust_store",
+    "policy_digest",
+    "trust_digest",
+    "scenarios"
+  ],
+  "properties": {
+    "schema_version": {"const": "shipcheck/demo-manifest-v1"},
+    "evidence": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "policy": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "trust_store": {"type": "string", "minLength": 1, "maxLength": 4096},
+    "policy_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "trust_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "scenarios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ready-lab", "blocked", "unknown"],
+      "properties": {
+        "ready-lab": {"$ref": "#/$defs/scenario"},
+        "blocked": {"$ref": "#/$defs/scenario"},
+        "unknown": {"$ref": "#/$defs/scenario"}
+      }
+    }
+  },
+  "$defs": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence",
+        "expected_outcome",
+        "assurance_profile",
+        "production_ready",
+        "expected_exit"
+      ],
+      "properties": {
+        "evidence": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "expected_outcome": {"enum": ["READY", "BLOCKED", "UNKNOWN"]},
+        "assurance_profile": {"const": "LAB"},
+        "production_ready": {"const": false},
+        "expected_exit": {"const": 2}
+      }
+    }
+  }
+}

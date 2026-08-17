@@ -1,0 +1,27 @@
+{
+  "schema_version": "shipcheck/compatibility-v1",
+  "shipcheck_version": "0.1.0",
+  "history_imported": false,
+  "legacy_repositories_modified": false,
+  "default_compatibility": "no_silent_cli_alias",
+  "sources": [
+    {"source": "ci-summary", "target": ["ci_run", "report"], "status": "normalized_contract", "cli": "shipcheck decide"},
+    {"source": "matrix", "target": ["ci_matrix"], "status": "native_gate", "cli": "shipcheck decide"},
+    {"source": "diff-risk", "target": ["shipcheck/diff-risk-v1"], "status": "native_gate", "cli": "shipcheck decide"},
+    {"source": "test-evidence", "target": ["test_summary", "junit-xml"], "status": "native_gate_and_adapter", "cli": "shipcheck normalize junit"},
+    {"source": "flaky", "target": ["flakiness"], "status": "native_gate", "cli": "shipcheck decide"},
+    {"source": "release", "target": ["artifact", "sbom", "changelog", "provenance"], "status": "native_gates", "cli": "shipcheck decide"},
+    {"source": "deploy-truth", "target": ["deploy_observation"], "status": "observation_only", "cli": "shipcheck decide"},
+    {"source": "rollback", "target": ["rollback_drill"], "status": "observation_only", "cli": "shipcheck decide"},
+    {"source": "build-metrics", "target": ["ci_run.duration_seconds", "test_summary.duration_seconds"], "status": "import_only", "cli": "shipcheck decide"},
+    {"source": "bug-capsule", "target": [], "status": "not_implemented", "cli": null},
+    {"source": "ci-proof-bundle", "target": ["assessment_envelope", "receipt"], "status": "internal_consistency_only", "cli": "shipcheck receipt export"},
+    {"source": "action-sha-auditor", "target": [], "status": "out_of_scope_repo_scan", "cli": null},
+    {"source": "workflow-permission-linter", "target": [], "status": "out_of_scope_repo_scan", "cli": null},
+    {"source": "cleanroom-package-tester", "target": ["artifact.install_tested", "build_manifest"], "status": "imports_results_never_executes", "cli": "shipcheck decide"},
+    {"source": "sbom-diff", "target": ["sbom"], "status": "exact_binding_only", "cli": "shipcheck normalize cyclonedx"},
+    {"source": "release-repro-comparator", "target": ["reproducibility"], "status": "native_gate", "cli": "shipcheck decide"},
+    {"source": "changelog-semver-validator", "target": ["changelog", "expected_version"], "status": "binding_only", "cli": "shipcheck decide"},
+    {"source": "ci-cost-estimator", "target": [], "status": "not_implemented", "cli": null}
+  ]
+}

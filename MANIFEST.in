@@ -1,0 +1,8 @@
+include README.md LICENSE SECURITY.md MIGRATION.md CHANGELOG.md CONTRIBUTING.md
+include .github/workflows/ci.yml
+recursive-include docs *.md
+recursive-include scripts *.py
+recursive-include tests *.py
+recursive-include src/shipcheck/dashboard *
+recursive-include src/shipcheck/public_schemas *.json
+include src/shipcheck/compatibility.json

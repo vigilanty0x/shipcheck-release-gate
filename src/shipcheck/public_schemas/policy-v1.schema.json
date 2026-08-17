@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vigilanty0x.github.io/shipcheck-release-gate/schemas/policy-v1.schema.json",
+  "title": "Shipcheck release policy v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "policy_id", "required_checks", "required_matrix", "required_test_suites", "required_artifacts", "expected_environment", "expected_version", "assurance_profile"],
+  "properties": {
+    "schema_version": {"const": "shipcheck/v1"}, "policy_id": {"$ref": "#/$defs/id"},
+    "required_checks": {"$ref": "#/$defs/nonempty_ids"}, "required_matrix": {"$ref": "#/$defs/nonempty_ids"},
+    "required_test_suites": {"$ref": "#/$defs/nonempty_ids"}, "required_artifacts": {"$ref": "#/$defs/nonempty_ids"},
+    "expected_environment": {"$ref": "#/$defs/id"}, "expected_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "assurance_profile": {"enum": ["LAB", "PRODUCTION"]},
+    "max_evidence_age_hours": {"type": "integer", "minimum": 1, "maximum": 8760},
+    "max_diff_risk": {"type": "integer", "minimum": 0, "maximum": 100},
+    "minimum_test_count": {"type": "integer", "minimum": 1, "maximum": 10000000},
+    "minimum_flake_samples": {"type": "integer", "minimum": 1, "maximum": 100},
+    "maximum_flake_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "minimum_reproducible_builds": {"type": "integer", "minimum": 2, "maximum": 20},
+    "minimum_reproducible_authorities": {"type": "integer", "minimum": 1, "maximum": 20},
+    "require_artifact": {"type": "boolean"}, "require_sbom": {"type": "boolean"},
+    "require_changelog": {"type": "boolean"}, "require_rollback": {"type": "boolean"},
+    "require_deploy_observation": {"type": "boolean"},
+    "rollback_max_age_hours": {"type": "integer", "minimum": 1, "maximum": 8760},
+    "maximum_rollback_minutes": {"type": "integer", "minimum": 1, "maximum": 10080},
+    "allowed_authorities": {"$ref": "#/$defs/ids"}, "allowed_issuers": {"$ref": "#/$defs/ids"},
+    "allowed_workflows": {"$ref": "#/$defs/ids"}, "allowed_waiver_authorities": {"$ref": "#/$defs/ids"},
+    "waivable_reason_codes": {"$ref": "#/$defs/ids"},
+    "allowed_source_kinds": {"type": "array", "maxItems": 4, "uniqueItems": true, "items": {"enum": ["synthetic", "supplied", "observed", "attested"]}}
+  },
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+\\-]*$"},
+    "ids": {"type": "array", "maxItems": 100, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "nonempty_ids": {"type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}
+  }
+}

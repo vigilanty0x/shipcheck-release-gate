@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shipcheck"
+version = "0.1.0"
+description = "Evidence-first release decision engine"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "vigilanty0x"}]
+keywords = ["release", "ci", "evidence", "supply-chain", "rollback"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/vigilanty0x/shipcheck-release-gate"
+Repository = "https://github.com/vigilanty0x/shipcheck-release-gate"
+Issues = "https://github.com/vigilanty0x/shipcheck-release-gate/issues"
+
+[project.scripts]
+shipcheck = "shipcheck.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+shipcheck = ["dashboard/*", "public_schemas/*.json", "compatibility.json"]

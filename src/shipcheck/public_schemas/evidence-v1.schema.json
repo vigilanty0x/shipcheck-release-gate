@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vigilanty0x.github.io/shipcheck-release-gate/schemas/evidence-v1.schema.json",
+  "title": "Shipcheck release evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "release_id", "created_at", "candidate", "observations"],
+  "properties": {
+    "schema_version": {"const": "shipcheck/v1"},
+    "release_id": {"$ref": "#/$defs/id"},
+    "created_at": {"type": "string", "format": "date-time", "maxLength": 64},
+    "candidate": {"$ref": "#/$defs/candidate"},
+    "observations": {"type": "array", "maxItems": 500, "items": {"$ref": "#/$defs/observation"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+\\-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$"},
+    "candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "base_commit", "head_commit", "tree_digest", "ref"],
+      "properties": {
+        "repository": {"type": "string", "minLength": 1, "maxLength": 256},
+        "base_commit": {"$ref": "#/$defs/commit"}, "head_commit": {"$ref": "#/$defs/commit"},
+        "tree_digest": {"$ref": "#/$defs/sha256"}, "ref": {"type": "string", "minLength": 1, "maxLength": 256}
+      }
+    },
+    "trust": {
+      "type": "object", "additionalProperties": false, "required": ["level"],
+      "properties": {
+        "level": {"enum": ["self_declared", "verified_attestation"]},
+        "authority": {"type": "string", "minLength": 1, "maxLength": 256},
+        "key_id": {"type": "string", "minLength": 1, "maxLength": 256},
+        "mac": {"$ref": "#/$defs/sha256"},
+        "issuer": {"type": "string", "minLength": 1, "maxLength": 256},
+        "workflow": {"type": "string", "minLength": 1, "maxLength": 256}
+      }
+    },
+    "observation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["observation_id", "kind", "source_kind", "subject_candidate_digest", "subject_commit", "collected_at", "trust", "payload"],
+      "properties": {
+        "observation_id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["artifact", "build_manifest", "changelog", "ci_run", "deploy_observation", "diff", "provenance", "sbom", "test_summary", "rollback_drill"]},
+        "source_kind": {"enum": ["synthetic", "supplied", "observed", "attested"]},
+        "subject_candidate_digest": {"$ref": "#/$defs/sha256"}, "subject_commit": {"$ref": "#/$defs/commit"},
+        "collected_at": {"type": "string", "format": "date-time", "maxLength": 64},
+        "trust": {"$ref": "#/$defs/trust"}, "payload": {"type": "object", "maxProperties": 1000}
+      }
+    }
+  }
+}
