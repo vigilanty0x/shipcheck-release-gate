@@ -230,7 +230,13 @@ class ArtifactTests(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlink unavailable")
     def test_symlink_artifact_is_rejected(self):
-        (self.root / "target").write_bytes(b"x"); os.symlink("target", self.root / "link")
+        (self.root / "target").write_bytes(b"x")
+        try:
+            os.symlink("target", self.root / "link")
+        except OSError as exc:
+            if os.name == "nt" and exc.winerror == 1314:
+                self.skipTest("Windows symlink privilege is unavailable")
+            raise
         with self.assertRaises(SecurityError):
             hash_artifact(self.root, "link")
 

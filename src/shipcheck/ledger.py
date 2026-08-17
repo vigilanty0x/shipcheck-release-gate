@@ -8,7 +8,7 @@ import os
 import sqlite3
 import stat
 import re
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -231,13 +231,15 @@ class DecisionLedger:
                     if candidate.exists():
                         os.chmod(candidate, 0o600)
             return connection
-        except sqlite3.Error as exc:
+        except Exception as exc:
             if connection is not None:
                 connection.close()
-            raise LedgerError("SQLite ledger cannot be opened", detail=type(exc).__name__) from exc
+            if isinstance(exc, sqlite3.Error):
+                raise LedgerError("SQLite ledger cannot be opened", detail=type(exc).__name__) from exc
+            raise
 
     def _initialize(self) -> None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection, connection:
             connection.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS ledger_entries (
@@ -565,7 +567,7 @@ class DecisionLedger:
         )
 
     def get_entry(self, sequence: int) -> dict[str, Any]:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             row = connection.execute("SELECT * FROM ledger_entries WHERE sequence=?", (sequence,)).fetchone()
         if row is None:
             raise NotFoundError(f"ledger sequence not found: {sequence}")
@@ -575,7 +577,7 @@ class DecisionLedger:
     def list_entries(self, *, limit: int = 100, after: int = 0) -> list[dict[str, Any]]:
         if type(limit) is not int or not 1 <= limit <= 500 or type(after) is not int or after < 0:
             raise ValidationError("ledger pagination is invalid")
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             rows = connection.execute("SELECT * FROM ledger_entries WHERE sequence>? ORDER BY sequence LIMIT ?", (after, limit)).fetchall()
         return [{"receipt": self._row_receipt(row).to_dict(), "payload": loads_strict(bytes(row["payload_json"]))} for row in rows]
 
@@ -596,7 +598,7 @@ class DecisionLedger:
     def list_recent_summaries(self, *, limit: int = 100) -> list[dict[str, Any]]:
         if type(limit) is not int or not 1 <= limit <= 100:
             raise ValidationError("recent summary limit must be in [1, 100]")
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             rows = connection.execute("SELECT * FROM ledger_entries ORDER BY sequence DESC LIMIT ?", (limit,)).fetchall()
         output: list[dict[str, Any]] = []
         for row in rows:
@@ -610,7 +612,7 @@ class DecisionLedger:
         return output
 
     def promotion_state(self, candidate_digest: str) -> dict[str, Any] | None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             row = connection.execute("SELECT * FROM promotion_state WHERE candidate_digest=?", (candidate_digest,)).fetchone()
         return None if row is None else dict(row)
 
